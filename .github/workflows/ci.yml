@@ -13,22 +13,19 @@ jobs:
     runs-on: ubuntu-latest    
 
     services:
-      # Label used to access the service container
       postgres:
-        # Docker Hub image
-        image: postgres:15
-        # Provide the password for postgres
+        image: postgres
         env:
           POSTGRES_USER: root
           POSTGRES_PASSWORD: secret
           POSTGRES_DB: booking_app
-        # Set health checks to wait until postgres has started
+        ports:
+          - 2345:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 
-
 
     steps: 
 
