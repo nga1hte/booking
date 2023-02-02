@@ -82,7 +82,6 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 
 const getUsers = `-- name: GetUsers :many
 SELECT id, full_name, email, mobile_number, password, created_at, user_type FROM users
-ORDER BY full_name
 LIMIT $1
 OFFSET $2
 `
@@ -98,7 +97,7 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]User, err
 		return nil, err
 	}
 	defer rows.Close()
-	var items []User
+	items := []User{}
 	for rows.Next() {
 		var i User
 		if err := rows.Scan(
@@ -127,8 +126,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users
     set full_name = $2,
     email = $3,
-    mobile_number = $4,
-    password = $5
+    mobile_number = $4
 WHERE id = $1
 RETURNING id, full_name, email, mobile_number, password, created_at, user_type
 `
@@ -138,7 +136,6 @@ type UpdateUserParams struct {
 	FullName     string `json:"full_name"`
 	Email        string `json:"email"`
 	MobileNumber string `json:"mobile_number"`
-	Password     string `json:"password"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
@@ -147,7 +144,6 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.FullName,
 		arg.Email,
 		arg.MobileNumber,
-		arg.Password,
 	)
 	var i User
 	err := row.Scan(

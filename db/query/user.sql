@@ -15,7 +15,6 @@ WHERE id = $1 LIMIT 1;
 
 -- name: GetUsers :many
 SELECT * FROM users
-ORDER BY full_name
 LIMIT $1
 OFFSET $2;
 
@@ -23,8 +22,7 @@ OFFSET $2;
 UPDATE users
     set full_name = $2,
     email = $3,
-    mobile_number = $4,
-    password = $5
+    mobile_number = $4
 WHERE id = $1
 RETURNING *;
 

@@ -85,7 +85,7 @@ func (q *Queries) GetBookings(ctx context.Context, arg GetBookingsParams) ([]Boo
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Booking
+	items := []Booking{}
 	for rows.Next() {
 		var i Booking
 		if err := rows.Scan(
@@ -119,7 +119,7 @@ func (q *Queries) GetBookingsFromToday(ctx context.Context, bookstarts time.Time
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Booking
+	items := []Booking{}
 	for rows.Next() {
 		var i Booking
 		if err := rows.Scan(
@@ -154,7 +154,7 @@ func (q *Queries) GetUserBookings(ctx context.Context, bookedby int64) ([]Bookin
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Booking
+	items := []Booking{}
 	for rows.Next() {
 		var i Booking
 		if err := rows.Scan(

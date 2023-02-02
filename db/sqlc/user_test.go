@@ -58,7 +58,6 @@ func TestUpdateUser(t *testing.T) {
 		FullName:     user1.FullName,
 		Email:        util.RandomEmail(),
 		MobileNumber: user1.MobileNumber,
-		Password:     user1.Password,
 	}
 
 	user2, err := testQueries.UpdateUser(context.Background(), arg)

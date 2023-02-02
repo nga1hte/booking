@@ -54,7 +54,7 @@ func (q *Queries) GetPayments(ctx context.Context, arg GetPaymentsParams) ([]Pay
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Payment
+	items := []Payment{}
 	for rows.Next() {
 		var i Payment
 		if err := rows.Scan(&i.PaymentId, &i.BookingId, &i.PaymentDate); err != nil {
