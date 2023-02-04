@@ -7,20 +7,25 @@ import (
 	"time"
 )
 
-type Store struct {
+type Store interface {
+	Querier
+	BookingTx(ctx context.Context, arg BookingTxParams) (BookingTxResult, error)
+}
+
+type SQLStore struct {
 	*Queries
 	db *sql.DB
 }
 
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) Store {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
 }
 
 // executes a funcion within a database transaction
-func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
+func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -48,7 +53,7 @@ type BookingTxResult struct {
 	User    User    `json:"user"`
 }
 
-func (store *Store) BookingTx(ctx context.Context, arg BookingTxParams) (BookingTxResult, error) {
+func (store *SQLStore) BookingTx(ctx context.Context, arg BookingTxParams) (BookingTxResult, error) {
 	var result BookingTxResult
 
 	err := store.execTx(ctx, func(q *Queries) error {
