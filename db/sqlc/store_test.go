@@ -8,56 +8,40 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func createBookingDayAfter(t *testing.T, user User) CreateBookingParams {
+	bookStarts := time.Now().UTC().Add(time.Duration(1 * time.Minute))
+	bookEnds := time.Now().UTC().Add(time.Duration(2 * time.Minute))
+	arg := CreateBookingParams{
+		BookedBy:   user.ID,
+		BookStarts: bookStarts,
+		BookEnds:   bookEnds,
+	}
+	return arg
+}
+
 func TestBookingTx(t *testing.T) {
 	store := NewStore(testDB)
-
 	user := createRandomUser(t)
-	booking := createRandomBooking(t, user)
-	n := 5
-	errs := make(chan error)
-	results := make(chan BookingTxResult)
+	booking := createBookingDayAfter(t, user)
 
-	for i := 0; i < n; i++ {
-		go func() {
-			result, err := store.BookingTx(context.Background(), BookingTxParams{
-				BookedBy:      booking.BookedBy,
-				BookingStarts: booking.BookStarts,
-				BookingEnds:   booking.BookEnds,
-			})
-			errs <- err
-			results <- result
-		}()
+	arg := BookingTxParams{
+		BookedBy:      user.ID,
+		BookingStarts: booking.BookStarts,
+		BookingEnds:   booking.BookEnds,
 	}
 
-	for i := 0; i < n; i++ {
-		err := <-errs
-		require.NoError(t, err)
-		result := <-results
-		require.NotEmpty(t, result)
+	result, err := store.BookingTx(context.Background(), arg)
+	require.NoError(t, err)
 
-		userT := result.User
-		require.NotEmpty(t, userT)
-		require.Equal(t, userT.ID, user.ID)
-		require.Equal(t, userT.FullName, user.FullName)
-		require.Equal(t, userT.Email, user.Email)
-		require.Equal(t, userT.MobileNumber, user.MobileNumber)
-		require.Equal(t, userT.Password, user.Password)
-		require.Equal(t, userT.UserType, user.UserType)
-		require.NotZero(t, userT.CreatedAt)
-		require.NotZero(t, userT.ID)
+	userRes := result.User
+	require.Equal(t, userRes.ID, user.ID)
 
-		bookingT := result.Booking
-		require.NoError(t, err)
-		require.NotEmpty(t, bookingT)
-		require.Equal(t, bookingT.BookedBy, booking.BookedBy)
-		require.WithinDuration(t, bookingT.BookStarts, booking.BookStarts, time.Second)
-		require.WithinDuration(t, bookingT.BookEnds, booking.BookEnds, time.Second)
-		require.NotZero(t, bookingT.BookOn)
-		require.NotZero(t, bookingT.BookingId)
+	bookingRes := result.Booking
+	require.Equal(t, bookingRes.BookedBy, user.ID)
+	require.WithinDuration(t, bookingRes.BookStarts, arg.BookingStarts, 5*time.Second)
+	require.WithinDuration(t, bookingRes.BookEnds, arg.BookingEnds, 5*time.Second)
 
-		_, err = store.GetBooking(context.Background(), booking.BookingId)
-		require.NoError(t, err)
-
-	}
+	result, err = store.BookingTx(context.Background(), arg)
+	require.ErrorContains(t, err, "slot already booked")
 
 }

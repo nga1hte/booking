@@ -50,7 +50,7 @@ func RandomPassword() string {
 
 //
 func RandomBookingDates() (time.Time, time.Time) {
-	startDate := time.Now().Local().Add(time.Duration(RandomInt(0, 5)) * time.Hour)
-	endDate := startDate.Local().Add(time.Duration(RandomInt(1, 5)) * time.Hour)
+	startDate := time.Now().UTC().Add(time.Duration(RandomInt(0, 5)) * time.Hour)
+	endDate := startDate.UTC().Add(time.Duration(RandomInt(1, 5)) * time.Hour)
 	return startDate, endDate
 }

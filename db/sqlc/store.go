@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -58,6 +59,20 @@ func (store *SQLStore) BookingTx(ctx context.Context, arg BookingTxParams) (Book
 
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
+		bookings, err := q.GetBookingsFromToday(ctx, time.Now())
+
+		if err != nil {
+			return err
+		}
+
+		if len(bookings) != 0 {
+			for _, booking := range bookings {
+				if inTimeSpan(booking.BookStarts, booking.BookEnds, arg.BookingStarts, arg.BookingEnds) {
+					return errors.New("slot already booked")
+				}
+			}
+		}
+
 		result.Booking, err = q.CreateBooking(ctx, CreateBookingParams{
 			BookedBy:   arg.BookedBy,
 			BookStarts: arg.BookingStarts,
@@ -77,4 +92,9 @@ func (store *SQLStore) BookingTx(ctx context.Context, arg BookingTxParams) (Book
 	})
 	return result, err
 
+}
+
+func inTimeSpan(start, end, check1, check2 time.Time) bool {
+	return (check1.After(start) && check1.Before(end)) ||
+		(check2.After(start) && check2.Before(end)) || check1.Equal(start)
 }
