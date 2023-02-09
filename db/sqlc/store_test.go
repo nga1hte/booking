@@ -38,10 +38,11 @@ func TestBookingTx(t *testing.T) {
 
 	bookingRes := result.Booking
 	require.Equal(t, bookingRes.BookedBy, user.ID)
-	require.WithinDuration(t, bookingRes.BookStarts, arg.BookingStarts, 5*time.Second)
-	require.WithinDuration(t, bookingRes.BookEnds, arg.BookingEnds, 5*time.Second)
+	require.WithinDuration(t, bookingRes.BookStarts, arg.BookingStarts, 1*time.Second)
+	require.WithinDuration(t, bookingRes.BookEnds, arg.BookingEnds, 1*time.Second)
 
 	result, err = store.BookingTx(context.Background(), arg)
+	require.Error(t, err)
 	require.ErrorContains(t, err, "slot already booked")
 
 }
