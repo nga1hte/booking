@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"net/http"
 	"time"
 
@@ -21,6 +22,10 @@ func (server *Server) createBooking(ctx *gin.Context) {
 		return
 	}
 
+	if !server.validAccount(ctx, req.BookedBy) {
+		return
+	}
+
 	arg := db.BookingTxParams{
 		BookedBy:      req.BookedBy,
 		BookingStarts: req.BookingStarts,
@@ -33,4 +38,17 @@ func (server *Server) createBooking(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, booking)
+}
+
+func (server *Server) validAccount(ctx *gin.Context, userID int64) bool {
+	_, err := server.store.GetUser(ctx, userID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return false
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return false
+	}
+	return true
 }

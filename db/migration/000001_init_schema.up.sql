@@ -40,6 +40,10 @@ CREATE INDEX ON "bookings" ("bookingId");
 
 CREATE INDEX ON "payments" ("paymentDate");
 
+CREATE UNIQUE INDEX ON "users" (lower("email"));
+
+CREATE UNIQUE INDEX ON "users" ("mobile_number");
+
 ALTER TABLE "bookings" ADD FOREIGN KEY ("bookedBy") REFERENCES "users" ("id");
 
 ALTER TABLE "payments" ADD FOREIGN KEY ("bookingId") REFERENCES "bookings" ("bookingId");
