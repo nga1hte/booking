@@ -1,5 +1,5 @@
 postgres:
-	docker run --name booking-app -p 2345:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:15-alpine
+	docker run --name booking-app --network booking-network -p 2345:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:15-alpine
 
 createdb:
 	docker exec -it booking-app createdb --username=root --owner=root booking_app
