@@ -20,7 +20,9 @@ OFFSET $2;
 -- name: GetUserBookings :many
 SELECT * FROM bookings
 WHERE "bookedBy" = $1
-ORDER BY "bookStarts" DESC;
+ORDER BY "bookStarts"
+LIMIT $2
+OFFSET $3;
 
 -- name: DeleteBooking :exec
 DELETE FROM bookings

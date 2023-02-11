@@ -21,7 +21,8 @@ type Querier interface {
 	GetBookingsFromToday(ctx context.Context, bookstarts time.Time) ([]Booking, error)
 	GetPayments(ctx context.Context, arg GetPaymentsParams) ([]Payment, error)
 	GetUser(ctx context.Context, id int64) (User, error)
-	GetUserBookings(ctx context.Context, bookedby int64) ([]Booking, error)
+	GetUserBookings(ctx context.Context, arg GetUserBookingsParams) ([]Booking, error)
+	GetUserLogin(ctx context.Context, mobileNumber string) (User, error)
 	GetUsers(ctx context.Context, arg GetUsersParams) ([]User, error)
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }

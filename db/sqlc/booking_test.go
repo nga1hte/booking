@@ -83,7 +83,14 @@ func TestGetUserBookings(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		createRandomBooking(t, u)
 	}
-	bookings, err := testQueries.GetUserBookings(context.Background(), u.ID)
+
+	arg := GetUserBookingsParams{
+		BookedBy: u.ID,
+		Limit:    5,
+		Offset:   0,
+	}
+
+	bookings, err := testQueries.GetUserBookings(context.Background(), arg)
 	require.NoError(t, err)
 	require.Len(t, bookings, 5)
 	for _, booking := range bookings {

@@ -215,7 +215,7 @@ func (mr *MockStoreMockRecorder) GetUser(arg0, arg1 interface{}) *gomock.Call {
 }
 
 // GetUserBookings mocks base method.
-func (m *MockStore) GetUserBookings(arg0 context.Context, arg1 int64) ([]db.Booking, error) {
+func (m *MockStore) GetUserBookings(arg0 context.Context, arg1 db.GetUserBookingsParams) ([]db.Booking, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserBookings", arg0, arg1)
 	ret0, _ := ret[0].([]db.Booking)
@@ -227,6 +227,21 @@ func (m *MockStore) GetUserBookings(arg0 context.Context, arg1 int64) ([]db.Book
 func (mr *MockStoreMockRecorder) GetUserBookings(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserBookings", reflect.TypeOf((*MockStore)(nil).GetUserBookings), arg0, arg1)
+}
+
+// GetUserLogin mocks base method.
+func (m *MockStore) GetUserLogin(arg0 context.Context, arg1 string) (db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserLogin", arg0, arg1)
+	ret0, _ := ret[0].(db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserLogin indicates an expected call of GetUserLogin.
+func (mr *MockStoreMockRecorder) GetUserLogin(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserLogin", reflect.TypeOf((*MockStore)(nil).GetUserLogin), arg0, arg1)
 }
 
 // GetUsers mocks base method.

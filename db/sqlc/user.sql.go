@@ -80,6 +80,26 @@ func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
 	return i, err
 }
 
+const getUserLogin = `-- name: GetUserLogin :one
+SELECT id, full_name, email, mobile_number, password, created_at, user_type FROM users
+WHERE mobile_number = $1 LIMIT 1
+`
+
+func (q *Queries) GetUserLogin(ctx context.Context, mobileNumber string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserLogin, mobileNumber)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.FullName,
+		&i.Email,
+		&i.MobileNumber,
+		&i.Password,
+		&i.CreatedAt,
+		&i.UserType,
+	)
+	return i, err
+}
+
 const getUsers = `-- name: GetUsers :many
 SELECT id, full_name, email, mobile_number, password, created_at, user_type FROM users
 LIMIT $1
@@ -125,7 +145,7 @@ func (q *Queries) GetUsers(ctx context.Context, arg GetUsersParams) ([]User, err
 const updateUser = `-- name: UpdateUser :one
 UPDATE users
     set full_name = $2,
-    email = $3,
+    email = $3, 
     mobile_number = $4
 WHERE id = $1
 RETURNING id, full_name, email, mobile_number, password, created_at, user_type

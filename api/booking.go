@@ -2,11 +2,13 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	db "github.com/nga1hte/booking/db/sqlc"
+	"github.com/nga1hte/booking/token"
 )
 
 type createBookingRequest struct {
@@ -23,6 +25,13 @@ func (server *Server) createBooking(ctx *gin.Context) {
 	}
 
 	if !server.validAccount(ctx, req.BookedBy) {
+		return
+	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+	if req.BookedBy != authPayload.Uid {
+		err := errors.New("user not authorised")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
@@ -50,5 +59,34 @@ func (server *Server) validAccount(ctx *gin.Context, userID int64) bool {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return false
 	}
+
 	return true
+}
+
+type getUserBookingsRequest struct {
+	PageID   int32 `form:"page_id" binding:"required,min=1"`
+	PageSize int32 `form:"page_size" binding:"required,min=5,max=10"`
+}
+
+func (server *Server) getUserBookings(ctx *gin.Context) {
+	var req getUserBookingsRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
+	arg := db.GetUserBookingsParams{
+		BookedBy: authPayload.Uid,
+		Limit:    req.PageSize,
+		Offset:   (req.PageID - 1) * req.PageSize,
+	}
+
+	bookings, err := server.store.GetUserBookings(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+	ctx.JSON(http.StatusOK, bookings)
+
 }

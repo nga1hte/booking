@@ -13,6 +13,10 @@ INSERT INTO users (
 SELECT * FROM users
 WHERE id = $1 LIMIT 1;
 
+-- name: GetUserLogin :one
+SELECT * FROM users
+WHERE mobile_number = $1 LIMIT 1;
+
 -- name: GetUsers :many
 SELECT * FROM users
 LIMIT $1
@@ -21,7 +25,7 @@ OFFSET $2;
 -- name: UpdateUser :one
 UPDATE users
     set full_name = $2,
-    email = $3,
+    email = $3, 
     mobile_number = $4
 WHERE id = $1
 RETURNING *;

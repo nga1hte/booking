@@ -57,7 +57,6 @@ func TestGetUser(t *testing.T) {
 func TestUpdateUser(t *testing.T) {
 	user1 := createRandomUser(t)
 	arg := UpdateUserParams{
-		ID:           user1.ID,
 		FullName:     user1.FullName,
 		Email:        util.RandomEmail(),
 		MobileNumber: user1.MobileNumber,

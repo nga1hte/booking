@@ -145,11 +145,19 @@ func (q *Queries) GetBookingsFromToday(ctx context.Context, bookstarts time.Time
 const getUserBookings = `-- name: GetUserBookings :many
 SELECT "bookingId", "bookedBy", "bookOn", "bookStarts", "bookEnds" FROM bookings
 WHERE "bookedBy" = $1
-ORDER BY "bookStarts" DESC
+ORDER BY "bookStarts"
+LIMIT $2
+OFFSET $3
 `
 
-func (q *Queries) GetUserBookings(ctx context.Context, bookedby int64) ([]Booking, error) {
-	rows, err := q.db.QueryContext(ctx, getUserBookings, bookedby)
+type GetUserBookingsParams struct {
+	BookedBy int64 `json:"bookedBy"`
+	Limit    int32 `json:"limit"`
+	Offset   int32 `json:"offset"`
+}
+
+func (q *Queries) GetUserBookings(ctx context.Context, arg GetUserBookingsParams) ([]Booking, error) {
+	rows, err := q.db.QueryContext(ctx, getUserBookings, arg.BookedBy, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
