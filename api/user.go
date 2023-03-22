@@ -34,7 +34,7 @@ type userResponse struct {
 	MobileNumber string    `json:"mobile_number"`
 	CreatedAt    time.Time `json:"created_at"`
 }
-
+//This is a comment
 func newUserResponse(user db.User) userResponse {
 	return userResponse{
 		ID:           user.ID,
